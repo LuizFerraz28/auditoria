@@ -13,10 +13,10 @@ class AuditoriaController {
 
   async store(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      console.log('Store auditoria:', req.body);
       const auditoria = await this.service.store(req.body);
       res.status(201).json(auditoria);
     } catch (err) {
+      console.error('Erro ao criar auditoria:', err);
       next(err);
     }
   }
@@ -25,8 +25,6 @@ class AuditoriaController {
     try {
       const { data_inicio, data_fim, modulo, usuario } = req.query as Record<string, string>;
       const auditorias = await this.service.getAuditoria({ data_inicio, data_fim, modulo, usuario });
-      console.log('Buscando auditorias com filtros:', { data_inicio, data_fim, modulo, usuario });
-      console.log('Auditorias encontradas:', auditorias.length);
       res.status(200).json(auditorias);
     } catch (err) {
       console.error('Erro ao buscar auditorias:', err);
@@ -38,9 +36,7 @@ class AuditoriaController {
     try {
       const { dataInicio, dataFim, autor, modulo, livre, metodo, http_status, sucesso, draw, start, length } = req.query as Record<string, string>;
       const acao = req.query.acao as string | string[] | undefined;
-      console.log('Datatable auditoria - filtros recebidos:', { dataInicio, dataFim, autor, modulo, livre, metodo, http_status, acao, sucesso, draw, start, length });
       const result = await this.service.getAll({ dataInicio, dataFim, autor, modulo, livre, metodo, http_status, acao, sucesso, draw, start, length });
-      console.log('Datatable auditoria - resultado:', result);
       res.status(200).json(result);
     } catch (err) {
       console.error('Erro ao buscar auditorias para datatable:', err);
