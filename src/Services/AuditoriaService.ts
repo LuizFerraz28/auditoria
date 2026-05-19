@@ -2,7 +2,7 @@ import AuditoriaRepository, { AuditoriaFiltros } from '../Repositories/Auditoria
 import { AuditoriaCreationAttributes } from '../Models/Auditoria';
 import AppError from '../errors/AppError';
 import dayjs from 'dayjs';
-import sequelize from '../database/sequelize';
+import path from 'path';
 
 export interface GetAuditoriaParams {
   data_inicio: string;
@@ -31,6 +31,13 @@ class AuditoriaService {
 
   constructor() {
     this.repository = new AuditoriaRepository();
+  }
+
+  private getDbTimezone(): string {
+    const env = process.env.NODE_ENV || 'geral';
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const config = require(path.join(__dirname, '../../config/config.json'))[env];
+    return config.timezone || '-03:00';
   }
 
   async store(data: AuditoriaCreationAttributes) {
@@ -108,7 +115,7 @@ class AuditoriaService {
       throw new AppError('Os campos data_inicio e data_fim são obrigatórios.');
     }
 
-    const tz = (sequelize.options as { timezone?: string }).timezone || '-03:00';
+    const tz = this.getDbTimezone();
 
     const dataInicio = new Date(`${params.data_inicio}T00:00:00.000${tz}`);
     const dataFim = new Date(`${params.data_fim}T23:59:59.999${tz}`);
@@ -138,7 +145,7 @@ class AuditoriaService {
       throw new AppError('Os campos dataInicio, dataFim e autor são obrigatórios.');
     }
 
-    const tz = (sequelize.options as { timezone?: string }).timezone || '-03:00';
+    const tz = this.getDbTimezone();
 
     const dataInicio = new Date(`${dataInicioStr}T00:00:00.000${tz}`);
     const dataFim = new Date(`${dataFimStr}T23:59:59.999${tz}`);
